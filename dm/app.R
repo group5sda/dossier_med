@@ -5,6 +5,7 @@
 #
 
 library(shiny)
+library(shinyTime)
 library(ggplot2)
 library(tidyverse)
 library(babynames)
@@ -14,6 +15,7 @@ library(DT)
 library(flexdashboard)
 library(leaflet)
 library(shinydashboard)
+library(gsheet)#to call my data set placed in my google sheet
 #library(rbokeh)
 
 # Define UI for application that draws a histogram
@@ -23,11 +25,83 @@ ui <- fluidPage(
   #theme=shinytheme("united"), 
   shinythemes::themeSelector(), 
   # Application title
-  titlePanel("DossierMedical"),
+ # titlePanel("DossierMedical"),
   
+ 
+ navbarPage(
+   windowTitle = "MedicalApp",
+   fluid = TRUE,
+   title = "Mon Dossier Medical",
+   selected = "Density",
+   tabPanel(
+     "Identité du/de la patient.e.",
+   ),
+   tabPanel(
+     "Motif d'admission"
+   ),
+   tabPanel(
+     "Anamnèse (histoire de la maladie)",
+     tabsetPanel(
+       selected = "Cluster analysis",
+       tabPanel(
+         "Duree",
+      
+      ),   
+       tabPanel(
+         "Signes saignants de la maladie",
+         
+       ),
+       tabPanel(
+         "Signes positifs",
+         
+       ),
+       tabPanel(
+         "Signes negatifs",
+         
+       ),
+     )
+   ),
+   tabPanel(
+     "Traitement antérieur",
+   ),
+   tabPanel(
+     "Antécédents"
+   ),
+   tabPanel(
+     "Examen physique (varie d’un spécialiste a un autre)"
+   ), 
+   tabPanel(
+     "Résumé syndromique"
+   ),
+   
+   tabPanel(
+     "Hypothèses diagnostic"
+   ),
+   
+   tabPanel(
+     "Bilans paracliniques"
+   ),
+   
+   tabPanel(
+     "Diagnostic retenu"  
+   ),
+   tabPanel(
+     'Traitement'
+   ),
+   tabPanel(
+     "Elements de surveillance"
+   ),
+   
+   tabPanel(
+     "Mode de sortie"
+   ),
+   
+   tabPanel(
+     "About"
+   )
+ ),
   
   #For nom de l'hopital ou se fait la consultation
-  
   
   textInput(inputId = "nomhopital",
             label = "NH :", 
@@ -42,12 +116,22 @@ ui <- fluidPage(
                  format = "yy-mm-dd",
                  weekstart = " "),
   #Heure
+  sidebarLayout(
+    sidebarPanel(
+      timeInput("time_input1", "Enter time", value = strptime("13:35:56", "%T")),
+      timeInput("time_input2", "Enter time (5 minute steps)", value = strptime("13:35:56", "%T"), minute.steps = 5),
+      actionButton("to_current_time", "Current time")
+    ),
+    
+    mainPanel(
+      textOutput("time_output1"),
+      textOutput("time_output2")
+    )
+),
   
-  
-  #for name
+  #for Patients name
   textInput(inputId = "name",
             label = "Name :", 
-            
             value = " "),
   dataTableOutput(outputId= "name"),
   
@@ -131,6 +215,7 @@ ui <- fluidPage(
             value = " "), 
   
   verbatimTextOutput(outputId = "dmr"),
+
   
   #Anamnèse (histoire de la maladie)
   
@@ -316,8 +401,17 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
+  output$time_output1 <- renderText(strftime(input$time_input1, "%T"))
+  output$time_output2 <- renderText(strftime(input$time_input2, "%R"))
+  
+  observeEvent(input$to_current_time, {
+    updateTimeInput(session, "time_input1", value = Sys.time())
+    updateTimeInput(session, "time_input2", value = Sys.time())
+  })
     
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+
