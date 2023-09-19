@@ -17,16 +17,20 @@ library(leaflet)
 library(shinydashboard)
 library(gsheet)#to call my data set placed in my google sheet
 #library(rbokeh)
+###Call data for application
+#data <- gsheet::gsheet2tbl("https://docs.google.com/spreadsheets/d/1h4zkDUWoqukezbfZqER2UC-92WhZEPSJcR3oiRGCkS4/edit?ouid=112304016069318462930&usp=sheets_home&ths=true")
+
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
 
-    
-  #theme=shinytheme("united"), 
+     #theme=shinytheme("united"), 
   shinythemes::themeSelector(), 
   # Application title
  # titlePanel("DossierMedical"),
-  
+
+ 
+
  
  navbarPage(
    windowTitle = "MedicalApp",
@@ -35,32 +39,30 @@ ui <- fluidPage(
    selected = "Density",
    tabPanel(
      "Identité du/de la patient.e.",
+     
    ),
    tabPanel(
      "Motif d'admission"
    ),
+   
    tabPanel(
-     "Anamnèse (histoire de la maladie)",
+     "Anamnèse (histoire de la maladie)", 
      tabsetPanel(
        selected = "Cluster analysis",
-       tabPanel(
-         "Duree",
-      
-      ),   
+       tabPanel("Duree",
+                ),
        tabPanel(
          "Signes saignants de la maladie",
-         
        ),
        tabPanel(
          "Signes positifs",
-         
        ),
        tabPanel(
          "Signes negatifs",
-         
        ),
-     )
-   ),
+     ),
+),
+  
    tabPanel(
      "Traitement antérieur",
    ),
@@ -371,14 +373,13 @@ ui <- fluidPage(
             value = ""),
   ##Pulls
   textInput(inputId = "pulls", 
-            label= "Pulls", 
-            value = ""),
+            label = "Pulls" ) ,
   
   
   ##Battements de cœur
   textInput(inputId = "battements_coeur", 
             label= "BattementsCoeurs", 
-            value = ""),
+            value = " ") ,
   
   
   ##Eléments de surveillance paracliniques
@@ -391,11 +392,11 @@ ui <- fluidPage(
                              "Decede.e",
                              "sortie contre avis medical",
                              "Transférer dans un autre service(dans le même hôpital)",
-                             "Referer vers un autre hôpital")),
+                             "Referer vers un autre hôpital") ),
   
   
-  #Creer une base de donnees qu'on peut exporter/utiliser,etc
-  
+
+
 )
 
 # Define server logic required to draw a histogram
@@ -408,7 +409,12 @@ server <- function(input, output) {
     updateTimeInput(session, "time_input1", value = Sys.time())
     updateTimeInput(session, "time_input2", value = Sys.time())
   })
-    
+ 
+  
+  output$sexe <- renderPlot({
+    data
+  })
+     
 }
 
 # Run the application 
