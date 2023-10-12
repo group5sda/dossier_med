@@ -349,21 +349,121 @@ ui <- fluidPage (
              
   ),
   ####Seventh part: Examen physique (varie d’un spécialiste a un autre)   
-  
+  navbarPage(title = "Examen physique", ),
   
   #####eight part: Resume syndromique
   
+  navbarPage(title = "Resume syndromique", 
+             tabPanel("Signes generaux", textAreaInput(inputId = "signes generaux", 
+                                                 label = "Signes genraux", 
+                                                 value = "", ), ),
+             
+             tabPanel("signes physiques", textAreaInput(inputId = "signes physiques", 
+                                                        label = "Signes physiques", 
+                                                        value = "", ), ),
+             
+             tabPanel("syndromes cliniques",  textAreaInput(inputId = "syndromes cliniques", 
+                                                            label = "syndromes cliniques", 
+                                                            value = "", ), )
+             
+             
+             
+             ),
   
   #####nine part: Hypotheses diagnostic
   
+  navbarPage(title = "Hypothese diagnostic", 
+             
+             
+             tabPanel("Hypotheses plus probables",  textAreaInput(inputId = "hypotheses plus probables", 
+                                                            label = "Hypotheses plus probables", 
+                                                            value = "", ), ),
+             
+             tabPanel("Hypotheses moins probables",  textAreaInput(inputId = "hypotheses moins probables", 
+                                                                  label = "Hypotheses moins probables", 
+                                                                  value = "", ), )
+             
+             ),
   
   #####ten part: Bilan paracliniques
   
+  navbarPage(title = "Bilan paraclinique", 
+             
+             tabPanel("Analyses de Laboratoire", 
+                         ),
+             
+             
+             tabPanel("Examens d’imagerie ",  )
+             
+             
+             ),
+  
   #####eleven part: Diagnostic retenu
   
-  #####twelve part: Traitement
+  navbarPage(title = "Diagnostic retenu", 
+             
+              tabPanel("Diagnostic", textAreaInput(inputId = "diagnostic retenu", 
+                                                   label = "Diagnostic retenu", 
+                                                   value = "", ), )
+             
+             
+             ),
+  
+  #####twelve part: Traitements
+  
+  navbarPage(title = "Traitements",
+             
+             tabPanel("Moyens Physiques",  
+                      textAreaInput(inputId = "moyens physiques", 
+                                    label = "Moyens Physiques", 
+                                    value = "", ), ),
+             
+             tabPanel("Moyens medicamenteux" ,  textAreaInput(inputId = "moyens medicamenteux", 
+                                                              label = "Moyens Medicamenteux", 
+                                                              value = "", ), ),
+             
+             tabPanel("Moyens chirigucaux",  textAreaInput(inputId = "moyens chirugicaux", 
+                                                           label = "Moyens Chirigicaux", 
+                                                           value = "", ), )
+             
+             
+             ),
   
   #### part: Eléments de surveillance
+  navbarPage(title = "Elements de surveillance", 
+             
+             
+             tabPanel("Température",  numericInput(inputId = "temperature",
+                                                   label = "Temperature", 
+                                                   value = " ", ) 
+                      ), 
+             
+             tabPanel("Poids",  numericInput(inputId = "poids",
+                                             label = "Poids", 
+                                             value = " ", )
+                                             
+                                             ),
+                      
+                      
+             
+             
+             tabPanel("Pulls",  numericInput(inputId = "pulls",
+                                             label = "Pulls", 
+                                             value = " ", )
+                                             ),
+                      
+                      
+         
+             tabPanel("Battements de cœur",  numericInput(inputId = "nbrebattementsdecoeur",
+                                                          label = "Nombre de battements de coeur", 
+                                                          value = " ", )
+                                                          ),
+             
+             
+             tabPanel("Eléments de surveillance paracliniques", )
+             
+             ),
+  
   
   #### part: Mode de sortie
   navbarPage(title = "Mode de sortie", 
