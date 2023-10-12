@@ -1,9 +1,12 @@
 #
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
-
 #
-
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
+# Define UI for application that draws a histogram
 library(shiny)
 library(shinyTime)
 library(ggplot2)
@@ -16,408 +19,465 @@ library(flexdashboard)
 library(leaflet)
 library(shinydashboard)
 library(gsheet)#to call my data set placed in my google sheet
-#library(rbokeh)
-###Call data for application
-#data <- gsheet::gsheet2tbl("https://docs.google.com/spreadsheets/d/1h4zkDUWoqukezbfZqER2UC-92WhZEPSJcR3oiRGCkS4/edit?ouid=112304016069318462930&usp=sheets_home&ths=true")
+library(rbokeh)
+#library(plotly)
 
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
+########Call data for application###############
+################################################
 
-     #theme=shinytheme("united"), 
+data <- gsheet::gsheet2tbl("https://docs.google.com/spreadsheets/d/1h4zkDUWoqukezbfZqER2UC-92WhZEPSJcR3oiRGCkS4/edit?usp=sharing")
+
+#############################
+##################### Let's data part#################
+#content5 for antecedents
+
+ante <- data.frame(data$antecedentsmedicaux, data$hypertensionart, data$diabete, data$hemoglobinopathie, data$cardiopathie, data$fumeur_tabac, data$autresantecends_medical, data$preciser_autresantecends_medical, data$ac_neurochirurgie)
+
+avcdata <- data.frame(data$accident_vasculaire_cerebral, data$territoire_avc, data$traumatisme_cranien, data$resultats_tdm)
+
+tbord <- data.frame(data$accident_vasculaire_cerebral, data$territoire_avc, data$traumatisme_cranien, data$resultats_tdm, data$tumeur_cerebrale, data$neuropaludisme, data$maladie_neurodegenerative, data$nombre_seances_faites,data$prescripteur_pcorthophonique , data$anciennete_trouble_enjours, data$duree_reeducation_ensemaines)
+
+
+infog <- data.frame(data$age, data$sexe, data$adresse, data$nationalite, data$ethnie, data$autrelanguesparles, data$religion, data$profession, data$prisenecharge, data$niveau_instruction, data$situation_matrimoniale, data$lateralite)
+
+Data<- data.frame(data$resultats, data$age, data$anciennete_trouble_enjours,data$nombre_seances_faites, data$duree_reeducation_ensemaines)
+################################################
+
+## Define UI for application 
+ui <- fluidPage (
+  
+  ################################################
+  
   shinythemes::themeSelector(), 
-  # Application title
- # titlePanel("DossierMedical"),
-
- 
-
- 
- navbarPage(
-   windowTitle = "MedicalApp",
-   fluid = TRUE,
-   title = "Mon Dossier Medical",
-   selected = "Density",
-   tabPanel(
-     "Identité du/de la patient.e.",
-     
-   ),
-   tabPanel(
-     "Motif d'admission"
-   ),
-   
-   tabPanel(
-     "Anamnèse (histoire de la maladie)", 
-     tabsetPanel(
-       selected = "Cluster analysis",
-       tabPanel("Duree",
-                ),
-       tabPanel(
-         "Signes saignants de la maladie",
-       ),
-       tabPanel(
-         "Signes positifs",
-       ),
-       tabPanel(
-         "Signes negatifs",
-       ),
-     ),
-),
   
-   tabPanel(
-     "Traitement antérieur",
-   ),
-   tabPanel(
-     "Antécédents"
-   ),
-   tabPanel(
-     "Examen physique (varie d’un spécialiste a un autre)"
-   ), 
-   tabPanel(
-     "Résumé syndromique"
-   ),
-   
-   tabPanel(
-     "Hypothèses diagnostic"
-   ),
-   
-   tabPanel(
-     "Bilans paracliniques"
-   ),
-   
-   tabPanel(
-     "Diagnostic retenu"  
-   ),
-   tabPanel(
-     'Traitement'
-   ),
-   tabPanel(
-     "Elements de surveillance"
-   ),
-   
-   tabPanel(
-     "Mode de sortie"
-   ),
-   
-   tabPanel(
-     "About"
-   )
- ),
+  ####################################
+  navbarPage(
+    windowTitle = "MedicalApp",
+    fluid = TRUE,
+    title = "Mon Dossier Medical"),
   
-  #For nom de l'hopital ou se fait la consultation
-  
-  textInput(inputId = "nomhopital",
-            label = "NH :", 
-            value = " "),
-  
-  #dataTableOutput(outputId= "nomhopital"),
-  
-  #For date and Hour
-  #Date
-  dateRangeInput(inputId = "date", 
-                 label = "Date",
-                 format = "yy-mm-dd",
-                 weekstart = " "),
-  #Heure
-  sidebarLayout(
-    sidebarPanel(
-      timeInput("time_input1", "Enter time", value = strptime("13:35:56", "%T")),
-      timeInput("time_input2", "Enter time (5 minute steps)", value = strptime("13:35:56", "%T"), minute.steps = 5),
-      actionButton("to_current_time", "Current time")
-    ),
-    
-    mainPanel(
-      textOutput("time_output1"),
-      textOutput("time_output2")
-    )
-),
-  
-  #for Patients name
-  textInput(inputId = "name",
-            label = "Name :", 
-            value = " "),
-  dataTableOutput(outputId= "name"),
-  
-  #For sex
-  selectInput(inputId = "sexe", 
-              label = "Sexe", 
-              choices = list(Female = "F", 
-                             Male = "M")),
-  dataTableOutput(outputId= "sexe"),
-  
-  #For Age
-  numericInput(inputId = "age",
-               label= "Age", 
-               value = " " ), 
-  plotOutput(outputId= "age"),
-  
-  #For Situation matrimonial
-  selectInput(inputId = "sm", 
-              label = "Situation matrimoniale", 
-              choices = list(Marie.e = "M", 
-                             Divorce.e = "D",
-                             Celibataire = "C",
-                             Celibataireavecenfant = "CavE",
-                             Unionlibre = "unionl")),
-  plotOutput(outputId= "sm"),
-  
-  #Profession
-  textInput(inputId = "profession",
-            label = "Profession :", 
-            value = " "),
-  plotOutput(outputId = "profession"),
-  
-  #zone de Provenance
-  textInput(inputId = "provenance",
-            label = "Provenance :", 
-            value = " "),
-  plotOutput(outputId = "provenance"),
-  
-  #Nationality/Pays d'origine
-  
-  #Ethnie
-  
-  
-  #Numero Piece d'identide ou Numero d'identification Personnelle???
-  
-  #Code de la personne  : comment generer automatiquement un code 
-  numericInput(inputId = "code",
-               label= "Code", 
-               value = " "),
-  
-  
-  #Mode d'admission
-  selectInput(inputId = "ma", 
-              label = "Mode d'admission", 
-              choices = list("Venu.e de lui-meme" , 
-                             "Amene.e par les parents",
-                             "Adresse.e par une autre structure",
-                             "Amene.e par les sapeurs-pompiers",
-                             "Référe.e avec ambulance")),
-  plotOutput(outputId = "ma"),
-  
-  #Principaux symptômes/Principal symptome
-  textInput(inputId = "PS", 
-            label = "Symptomes", 
-            value = " "), 
-  
-  plotOutput(outputId = "PS"),          
-  
-  #Préciser les informations sur la …/Diagnostic de la référence
-  
-  #Avis du medecion/specialiste qui a consulte
-  textInput(inputId = "dm", 
-            label = "Diagnostic", 
-            value = " "), 
-  
-  textOutput(outputId = "dm"),
-  
-  #Diagnostic de la reference(de l'hopital qui a refere)
-  textInput(inputId = "dmr", 
-            label = "DiagnosticReference", 
-            value = " "), 
-  
-  verbatimTextOutput(outputId = "dmr"),
-
-  
-  #Anamnèse (histoire de la maladie)
-  
-  numericInput(inputId = "duree", 
-               label = "Duree", 
-               value = " ",
-               width = 3),
-  
-  plotOutput(outputId = "duree"),
-  
-  #Signes saignants de sa maladie
-  textInput(inputId = "signessaignants", 
-            label = " SS", 
-            value = " "), 
-  
-  verbatimTextOutput(outputId = "signessaignants"),       
-  
-  #Signespositifs
-  textInput(inputId = " signep ", 
-            label = " SP ", 
-            value = " "), 
-  
-  verbatimTextOutput(outputId = "signep"), 
-  
-  #Signesnégatifs
-  
-  textInput(inputId="signen", 
-            label="SN", 
-            value=" " ),
-  verbatimTextOutput(outputId = "signen"), 
-  
-  #Déjà parcouru d’autres centres
-  textInput(inputId = " centresparcourues", 
-            label = " Centres Parcourus", 
-            value = " "),
-  
-  verbatimTextOutput(outputId = "centresparcourues"),
-  
-  
-  #Diagnostic du médecin
-  textInput(inputId = "diagnostic", 
-            label = " Diagnostic du medecin", 
-            value = " "),
-  verbatimTextOutput(outputId = "diagnostic"),
-  
-  #Traitement antérieur
-  textInput(inputId = " traitements anterieurs", 
-            label = " Traitements anterieurs", 
-            value = " "),
-  
-  verbatimTextOutput(outputId = "traitements anterieurs"),
-  
-  #les antecedents
-  #Antécédents médicaux: Fumer, Hypertendu, Des comportements sexuels a risque, Obésité, Diabétique
-  selectInput(inputId = "antecedents", 
-              label = "Antecedents", 
-              choices = list("Fumeur/Fumeuse" , 
-                             "Hypertendu.e",
-                             "Comportements sexuels a risque",
-                             "Obesite",
-                             "Diabetique", 
-                             "Autres")),
-  
-  
-  #Antécédent chirurgicaux (année, raison, etc.)
-  
-  #Antécédents gynéco-obstétriques pour les femmes (réservés à la femme)
-  
-  ##Date des dernières règles
-  wellPanel(
-    dateInput("a", ""),
-    submitButton( ) 
+  ###############################Differentes parties de l'application#####################
+  #############################################################
+  #First part
+  navbarPage( title = "Informations generales",
+              tabPanel("Date de la consultation", 
+                       dateInput(inputId = "date", 
+                                 label = "Date",
+                                 format = "yy-mm-dd",
+                                 weekstart = " "), ),
+              
+              tabPanel( "Nom de l'hopital", 
+                        textInput(inputId = "identifian",
+                                  label = "Nom de l'hopital:", 
+                                  value = " "),)
+              
+              
   ),
   
-  ##Contraception en cours
-  selectInput(inputId = "contraptionact", 
-              label = "Contraception en cours", 
-              choices = list(Oui = "1" , 
-                             Non ="0")),
+  #second part
+  navbarPage( title = "Identité du/de la patient.e.",
+              tabPanel("Nom du Patient.e", 
+                       textInput(inputId = "name",
+                                 label = "Name :", 
+                                 value = " ") 
+              ),
+              
+              
+              tabPanel("Age", 
+                       
+                       numericInput(inputId = "age",
+                                    label= "Age", 
+                                    value = " " ), 
+                       
+              ),
+              
+              tabPanel("Sexe", 
+                       
+                       selectInput(inputId = "sexe", 
+                                   label = "Sexe", 
+                                   choices = list(Female = "F", 
+                                                  Male = "M")),
+              ),
+              
+              tabPanel("Adresse", 
+                       
+                       textInput(inputId = "adresse",
+                                 label = " Adresse:", 
+                                 value = " ") 
+              ),
+              
+              tabPanel( "Nationalite", 
+                        
+                        textInput(inputId = "nationalite",
+                                  label = "Nationalite :", 
+                                  value = " "),
+              ),
+              
+              tabPanel( "Ethnie", 
+                        
+                        selectInput(inputId = "ethnie",
+                                    label = "Ethnie", 
+                                    choices = list(Fon = "Fon", 
+                                                   Mina = "Mina", 
+                                                   Adja = "Adja", 
+                                                   Idatcha ="Idatcha", 
+                                                   Mahi = "Mahi", 
+                                                   Yoruba = "Yoruba")),
+              ),
+              
+              tabPanel( "Autres langues ", 
+                        
+                        textInput(inputId = "autreslanguesparles",
+                                  label = "Autres langues :", 
+                                  value = " "),
+              ),
+              
+              tabPanel( "Profession", 
+                        
+                        textInput(inputId = "profession",
+                                  label = "Profession :", 
+                                  value = " "),
+              ),
+              
+              tabPanel( "Prise en charge", 
+                        
+                        selectInput(inputId = "priseencharge",
+                                    label = "Prise en charge", 
+                                    choices = list(Oui = "1",
+                                                   Non = "2") ),
+              ),
+              
+              tabPanel( "Niveau d'instruction", 
+                        
+                        selectInput(inputId = "niveau_instruction",
+                                    label = "Niveau d'instruction", 
+                                    choices = list(Primaire = "1",
+                                                   Secondaire = "2",
+                                                   Universitaire = "3",
+                                                   NonScolarise = "4" )),
+              ),
+              
+              tabPanel("Situation matrimoniale", 
+                       selectInput(inputId = "situation_matrimoniale", 
+                                   label = "Situation matrimoniale", 
+                                   choices = list(Marie.eouUL = "M", 
+                                                  Divorce.e = "D",
+                                                  Celibataire = "C",
+                                                  Celibataireavecenfant = "CavE",
+                                                  Veuf.ve = "Veuf")),
+              ),  
+              
+              tabPanel("Lateralite", 
+                       selectInput(inputId = "lateralite", 
+                                   label = "Lateralite", 
+                                   choices = list(Droite = "Droite", 
+                                                  Gauche = "Gauche",
+                                                  NonPrecise = "NonPrecise")),
+              ),  
+              
+              
+              tabPanel("Data of this section", DT::dataTableOutput("data")),
+              
+              ##Use NavbarMenu 
+              navbarMenu("Menu Options",
+                         tabPanel("Menu item A - Summary stats", verbatimTextOutput("summary")),
+                         tabPanel("Menu item B - Link to code",))
+              
+              
+              
+              
+              
+  ),
+  #####Thrisd part: Motif d'admission
+  navbarPage( title = "Motif d'admission", 
+              tabPanel("Mode d'admission",
+                       selectInput(inputId = "ma", 
+                                   label = "Mode d'admission", 
+                                   choices = list("Venu.e de lui-meme" , 
+                                                  "Amene.e par les parents",
+                                                  "Adresse.e par une autre structure",
+                                                  "Amene.e par les sapeurs-pompiers",
+                                                  "Référe.e avec ambulance")),
+              ),
+              
+              
+              tabPanel("Principaux symptômes", 
+                       textInput(inputId = "PS", 
+                                 label = "Symptomes :", 
+                                 value = " "),
+              ),
+              ######Preciser les informations concernant le Diagnostic de la référence
+              tabPanel("Avis du medecion/specialiste qui a consulte",
+                       textInput(inputId = "dm", 
+                                 label = "Diagnostic :", 
+                                 value = " "), 
+              ),
+              
+              tabPanel("Diagnostic de l'hopital de Reference", 
+                       textInput(inputId = "dmr", 
+                                 label = "DiagnosticReference :", 
+                                 value = " "), 
+              ),
+              
+              
+  ),
+  #####Four part: Anamnèse (histoire de la maladie)
+  navbarPage( title = "Anamnese (histoire) de la maladie",
+              tabPanel("Duree ecoulee/Combien de jours, etc.?", 
+                       numericInput(inputId = "duree", 
+                                    label = "Duree", 
+                                    value = " ",
+                                    width = 3),
+              ),
+              
+              tabPanel("Signes saignants de sa maladie",
+                       textInput(inputId = "signessaignants", 
+                                 label = " SS :", 
+                                 value = " "), 
+                       
+              ),
+              
+              tabPanel("Signes positifs", 
+                       textInput(inputId = " signep ", 
+                                 label = " SP :", 
+                                 value = " "), 
+                       
+              ),
+              
+              tabPanel("signes negatifs", 
+                       textInput(inputId="signen", 
+                                 label="SN :", 
+                                 value=" " ),
+              ),
+              
+              tabPanel("hopitaux deja parcourus",
+                       textInput(inputId = " centresparcourues", 
+                                 label = " Centres Parcourus:", 
+                                 value = " "),
+              ),
+              
+              tabPanel("Diagnostic du medecin", 
+                       textInput(inputId = "diagnostic", 
+                                 label = " Diagnostic du medecin:", 
+                                 value = " "),
+                       
+              ),
+              
+              
+  ),
+  
+  #####Fifth part: Traitements anterieurs
+  navbarPage(title = "Traitements anterieurs", 
+             tabPanel("Traitements medicaux anterieurs",
+                      textInput(inputId = " traitements medicaux anterieurs", 
+                                label = " Traitements medicaux anterieurs:", 
+                                value = " "),
+             ),
+             tabPanel("Autres traitements anterieurs",
+                      textInput(inputId = " autres traitements anterieurs", 
+                                label = " Autres traitements anterieurs:", 
+                                value = " "),      
+                      
+             )
+             
+             
+             
+             
+  ),
+  
+  #### sixeth part: les antecedents
+  navbarPage(title = "Antecedents", 
+             
+             ###Les donnees sur les antecedents
+             tabPanel("Donnees sur les antecedents", DT::dataTableOutput("Data")),
+             
+             tabPanel("Antecedents medicaux",
+                      selectInput(inputId = "antecedentsmedicaux",
+                                  label = "Antecedents medicaux",
+                                  choices = list(Oui = "1",
+                                                 Non = "2")),
+             ),
+             tabPanel("Preciser l'antecedent medical",
+                      selectInput(inputId = "antecedents", 
+                                  label = "Antecedents", 
+                                  choices = list("Fumeur_tabac" , 
+                                                 "Hypertenionarterielle",
+                                                 "Comportements sexuels a risque",
+                                                 "Obesite",
+                                                 "Diabetie",
+                                                 "cardiopathie",
+                                                 "hemoglobinopathie",
+                                                 "Autres")),
+             ),
+             tabPanel("Antecedents neurochirulgies",
+                      selectInput(inputId = "ac_neurochirulgie",
+                                  label = "Antecedents neurochirulgies",
+                                  choices = list(Oui = "1",
+                                                 Non = "2")),
+             ),
+             ###Antécédents gynéco-obstétriques pour les femmes (réservés à la femme)
+             
+             tabsetPanel(
+               
+               tabPanel("Date des dernieres regles", 
+                        wellPanel(
+                          dateInput("a", ""),
+                          submitButton( ) 
+                        ),),
+               
+               tabPanel("Contraceptif en cours", selectInput(inputId = "contraptionact", 
+                                                             label = "Contraception en cours", 
+                                                             choices = list(Oui = "1" , 
+                                                                            Non ="2")),)
+               
+             ),
+             tabPanel("Nombres de grossesses", numericInput(inputId = "nbgrosessesse", 
+                                                            label = "Nombre de Grossesses", 
+                                                            value = " ",),),
+             
+             tabPanel("Nombre d'avortements/fausses couches", numericInput(inputId = "nbavortements", 
+                                                                           label = "Nombre d'Avortements", 
+                                                                           value = " ",),),
+             
+             tabPanel("Nombre d'enfants vivants", numericInput(inputId = "nbenfanvivant", 
+                                                               label = "Nombre d'enfants vivants", 
+                                                               value = " ",),)
+             
+             
+             
+             
+  ),
+  ####Seventh part: Examen physique (varie d’un spécialiste a un autre)   
   
   
-  #si oui a la question precedente, preciser la contraception en cours
-  
-  ##Nbre de grossesses
-  numericInput(inputId = "nbgrosessesse", 
-               label = "Nombre de Grossesses", 
-               value = " ",),
-  
-  ##Nbre d’avortements
-  numericInput(inputId = "nbavortements", 
-               label = "Nombre d'Avortements", 
-               value = " ",),
+  #####eight part: Resume syndromique
   
   
-  ##Nbre d’enfants vivants
-  numericInput(inputId = "nbenfanvivant", 
-               label = "Nombre d'enfants vivants", 
-               value = " ",),
-  
-  #Enquête sociale (l’enquête sociale rejoint les antécédents médicaux…. Si il fume, s’il boit, etc.)
+  #####nine part: Hypotheses diagnostic
   
   
-  #Examen physique (varie d’un spécialiste a un autre)   
+  #####ten part: Bilan paracliniques
   
-  #
+  #####eleven part: Diagnostic retenu
   
+  #####twelve part: Traitement
   
-  #Examen physique (varie d’un spécialiste a un autre) 
-  textInput(inputId = "examen_physique", 
-            label= "EP", 
-            value = ""),
+  #### part: Eléments de surveillance
   
-  
-  #Résumé syndromique (Résumer ce que le malade a dit sous forme de syndromes ; regroupements des signes généraux et physiques en des syndromes cliniques.  
-  #A partir de ceci, on dégage les hypothèses  )
-  textInput(inputId = "resume_syndromique", 
-            label= "RS", 
-            value = ""),
-  
-  
-  #Hypothèses diagnostic (Les classer du plus probable au moins probable )
-  
-  #Bilan paracliniques
-  
-  
-  #Diagnostic retenu (Dire la maladie en question et préciser le stade)
-  
-  
-  #Traitements
-  ##Moyens médicaux 
-  
-  ##Moyens physiques
-  
-  
-  ##Moyens médicamenteux :  , préciser les posologies, les voies d’administrations, 
-  ##le nbre de jours/durée de traitement
-  
-  
-  ##Moyens chirigucaux en même temps 
-  
-  
-  
-  
-  #Elements de surveillance
-  ##Température
-  
-  textInput(inputId = "temperature", 
-            label= "Temperature", 
-            value = ""),
-  ##Poids
-  textInput(inputId = "poids", 
-            label= "Poids", 
-            value = ""),
-  ##Pulls
-  textInput(inputId = "pulls", 
-            label = "Pulls" ) ,
-  
-  
-  ##Battements de cœur
-  textInput(inputId = "battements_coeur", 
-            label= "BattementsCoeurs", 
-            value = " ") ,
-  
-  
-  ##Eléments de surveillance paracliniques
-  
-  
-  #Mode de sortie
-  selectInput(inputId = "mode_sortie", 
-              label = "Mode de sorties", 
-              choices = list("Exeat (guerison/rentre.e sur ses deux pieds)" , 
-                             "Decede.e",
-                             "sortie contre avis medical",
-                             "Transférer dans un autre service(dans le même hôpital)",
-                             "Referer vers un autre hôpital") ),
+  #### part: Mode de sortie
+  navbarPage(title = "Mode de sortie", 
+             tabPanel( "Mode de sortie", 
+                       selectInput(inputId = "mode_sortie", 
+                                   label = "Mode de sorties", 
+                                   choices = list("Exeat (guerison/rentre.e sur ses deux pieds)" , 
+                                                  "Decede.e",
+                                                  "sortie contre avis medical",
+                                                  "Transférer dans un autre service(dans le même hôpital)",
+                                                  "Referer vers un autre hôpital") ),
+             )
+             
+             
+             
+             
+             
+             
+             
+  ),
+  ###About some analysis
+  #### part: Certaines analyses
+  ### Tableau de bord
+  dashboardPage(
+    dashboardHeader(title = "Tableau de Bord"),
+    dashboardSidebar(
+      sliderInput("resultats", "please choose",
+                  min = 0, max = 252, value = 3, step = 1,  
+      ),
+      sidebarMenu(
+        menuItem("fiche", tabName = "fiche"),
+        menuItem("age", tabName = "age"),
+        menuItem("identifian", tabName = "identifian"),
+        menuItem("territoire_avc", tabName = "AVC"),
+        menuItem("neuropaludisme", tabName = "neuropaludisme"),
+        menuItem("traumatisme_cranien", tabName = "traumatisme_cranien")
+        
+      )
+    ),
+    
+    dashboardBody(
+      tabItems(
+        tabItem("age",
+                fluidRow(
+                  valueBoxOutput("summary"),
+                  valueBoxOutput("plot")
+                  
+                ),
+                
+                box(
+                  width = 4, status = "info",
+                  title = "Ages des patients",
+                  tableOutput("tbord$age")
+                )
+        )
+      ),
+      tabItem("neuropaludisme",
+              numericInput("maxrows", "Rows to show", 25),
+              verbatimTextOutput("neuropaludisme"),
+              downloadButton("downloadCsv", "Download as CSV")    
+      )
+    )
+  )
   
   
-
-
+  
+  #####
 )
 
-# Define server logic required to draw a histogram
+# Define server logic required 
 server <- function(input, output) {
-
-  output$time_output1 <- renderText(strftime(input$time_input1, "%T"))
-  output$time_output2 <- renderText(strftime(input$time_input2, "%R"))
   
-  observeEvent(input$to_current_time, {
-    updateTimeInput(session, "time_input1", value = Sys.time())
-    updateTimeInput(session, "time_input2", value = Sys.time())
-  })
- 
+  # for display of mtcars dataset in the "Data Page"
+  output$data <- DT::renderDataTable ( DT::datatable({
+    infog 
+  }) 
+  )
   
-  output$sexe <- renderPlot({
-    data
+  # for display of histogram in the "Widget & Sidepar page"
+  output$plot <- renderPlot({
+    hist(infog$age , col ="blue", breaks=input$b )
   })
-     
+  
+  # for display of mtcars dataset summary statistics in the "Menu item A page"
+  output$summary <- renderPrint ({
+    summary(infog)
+    
+  })
+  #For display histogram for antecedent data named ante
+  output$Data <- DT::renderDataTable ( DT::datatable({
+    ante 
+  }) 
+  )
+  ###
+  output$summary <- renderPrint ({
+    summary(ante)
+  })
+  ###
+  output$plot <- renderDT(DT::datatable({
+    ante 
+  }) )
+  ###########Some analysis on data##########
+  ###Tableau de bord
+  
+  output$count <- renderValueBox({
+    valueBox(
+      value = count(),
+      subtitle = " Total",
+      icon = icon("")
+    )
+  })
+  
+  
+  #####
 }
-
 # Run the application 
 shinyApp(ui = ui, server = server)
-
-
